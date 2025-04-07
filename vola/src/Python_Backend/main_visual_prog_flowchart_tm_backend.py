@@ -7,6 +7,7 @@ import json
 import time
 import rclpy
 from rclpy.node import Node
+import numpy as np
 
 from arm1_skills import ARM1_Skills # Gripper
 from arm2_skills import ARM2_Skills # Screwdriver
@@ -15,12 +16,14 @@ import threading
 import requests
 import cv2
 import base64
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 app = Flask(__name__)
 
-url_LLM_server = "http://127.0.0.1:9000/AI_reciever_prompt_image" #Dummy LLM VLM API
-#url_LLM_server = "https://gai.hucenrotia.ngrok.dev/AI_reciever_prompt_image" #Hucenrotia_LLM_server
-url_laptop_server = "https://e962-140-113-149-84.ngrok-free.app/arm1_command"
+#url_LLM_server = "http://127.0.0.1:9000/AI_reciever_prompt_image" #Dummy LLM VLM API
+url_LLM_server = "https://gai.hucenrotia.ngrok.dev/AI_reciever_prompt_image" #Hucenrotia_LLM_server
+url_laptop_server = "https://e1d7-140-113-149-84.ngrok-free.app/arm1_command"
 
 
 LLM_message="" #"helo I am LLM tester"
@@ -32,6 +35,36 @@ object_item_list=["red_wire","blue_wire", "yellow_wire", "white_wire","green_wir
 location_list=["table","power_supply_5"]
 
 extacted_commands=[]
+
+
+latest_image_frame = None  
+
+
+class ImageListener(Node):
+    def __init__(self):
+        super().__init__('image_listener')
+        self.image_frame = None
+        self.bridge = CvBridge()
+        self.subscription = self.create_subscription(
+            Image,
+            '/techman_image',
+            self.image_callback,
+            10
+        )
+
+    def image_callback(self, msg):
+        global latest_image_frame
+        self.image_frame = self.bridge.imgmsg_to_cv2(msg)
+        latest_image_frame = self.image_frame
+
+        # print(latest_image_frame)
+        # print("I got the frame")
+
+        # Save to a JPG file
+        filename = "captured_frame_now.jpg"
+        cv2.imwrite(filename, self.image_frame)
+        print(f"Image saved to {filename}")
+
 
 class PDDL_line:
     def __init__(self, command_keypharse):
@@ -208,37 +241,6 @@ def send_data_to_url(url,data):
         print(f"Error sending data: {e}")
         return (f"Error sending data: {e}")
 
-
-
-# def send_data_to_url(url,data):
-#     try:
-#         response = requests.post(url, json=data)
-#         print(f"Data sent: {response.status_code}, Response: {response.text}")
-#         return response.text
-#     except requests.exceptions.RequestException as e:
-#         print(f"Error sending data: {e}")
-#         return (f"Error sending data: {e}")
-"""
-def convert_pddl_and_send_to_electron():
-    node = []
-    link=[]
-    pddl_lines=extract_pddl_lines(output_pddl_str)
-    for pddl_line in pddl_lines:
-        extacted_command=extract_basic_keyPharse(pddl_line)
-        extacted_commands.append(extacted_command)
-    node,link=convert_PDDL_line_to_jsonGraph(extacted_commands)
-    message="okay"
-    print(node)
-    print("\n")
-    print(link)
-    post_data = {'message': message,
-        'linkDataArray': link,
-        'nodeDataArray': node
-        }
-    print("\njson")
-    print(post_data)
-    send_data_to_url(post_data)
-"""
 ##---CONTROLLER ARM 2---##
 def controller_arm2(subtasks, coords):
     # arm1 = ARM1_Skills()
@@ -274,7 +276,7 @@ def controller_arm2(subtasks, coords):
 
             # Convert to bytes for sending
             base64_image = base64.b64encode(img_encoded)
-            response = requests.post(url_update_screw_diver_capture, json={"image": base64_image})
+            response = requests.post(url_update_screw_driver_capture, json={"image": base64_image})
             print(f"Server response: {response.text}")
 
         elif task == 'lock':
@@ -406,6 +408,27 @@ def process_data_from_AI(data_json):
             extacted_command=extract_basic_keyPharse(pddl_line)
             extacted_commands.append(extacted_command)
         
+        if data['vlm_frame'] is not None:
+            img_bytes = base64.b64decode(data['vlm_frame'])
+
+            # Convert bytes to 1D uint8 array
+            nparr = np.frombuffer(img_bytes, np.uint8)
+
+            # Decode image (cv2.IMREAD_COLOR can be changed if needed)
+            img_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            print(img_np)
+            scalled_frame = cv2.resize(img_np, (480, 320))
+            # Encode the frame into bytes (JPEG format)
+            _, img_encoded = cv2.imencode('.jpg', scalled_frame)
+
+            # Convert to bytes for sending
+            base64_image = base64.b64encode(img_encoded).decode('utf-8')  # <-- decode here
+
+            data['vlm_frame'] = base64_image
+        else:
+            print("Warning: image_frame is None!")
+            data['vlm_frame'] = ""
+
         # print("Extracted commands:", extacted_commands)
         node,link=convert_PDDL_line_to_jsonGraph(extacted_commands)
         post_data = {'message': data['message'],
@@ -531,12 +554,22 @@ def user_prompt_to_LLM_server():
         message = data['message']
         print(f"Received message: {message}")
 
+        frame = latest_image_frame
+        if frame is not None:
+            _, buffer = cv2.imencode('.jpg', frame)
+            base64_image = base64.b64encode(buffer).decode('utf-8')
+            data['frame_screw_driver'] = base64_image
+        else:
+            print("Warning: image_frame is None!")
+            data['frame_screw_driver'] = ""
+
         response =  send_data_to_url(url_LLM_server,data)
         response_json= json.loads(response)
         print(f"data_recieved: {response_json['data']}")
 
         result_from_AI= process_data_from_AI(response_json['data'])
         print(result_from_AI)
+
         return jsonify({'result_from_AI':result_from_AI,'status': 'success'}), 200
     except Exception as e:
         print(f"Error: {e}")
@@ -545,5 +578,15 @@ def user_prompt_to_LLM_server():
 
 if __name__ == "__main__":
     # start_main()
+    rclpy.init()
+    image_listener = ImageListener()
+    print("shit")
+
+    def spin_image_listener():
+        rclpy.spin(image_listener)
+
+    threading.Thread(target=spin_image_listener, daemon=True).start()
+
+
     app.run(host='127.0.0.2',port=8000, debug=True)
 

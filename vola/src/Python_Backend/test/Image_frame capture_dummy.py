@@ -2,7 +2,7 @@ import cv2
 import requests
 import base64
 
-url_update_screw_diver_capture = "http://localhost:6000/screw_diver_capture"
+url_update_screw_driver_capture = "http://localhost:6000/screw_driver_capture"
 
 def capture_image_from_cam():
     # Open a connection to the default camera (usually the first camera)
@@ -21,7 +21,7 @@ def capture_image_from_cam():
 
     # Convert to bytes for sending
     base64_image = base64.b64encode(img_encoded).decode('utf-8')  # <-- decode here
-    response = requests.post(url_update_screw_diver_capture, json={"image": base64_image})
+    response = requests.post(url_update_screw_driver_capture, json={"image": base64_image})
     print(f"Server response: {response.text}")
 
     if ret:

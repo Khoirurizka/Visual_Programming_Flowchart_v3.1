@@ -1,8 +1,8 @@
 backend to frontend:
 Cam API :
-"http://localhost:6000/bev_diver_capture" //For BEV cam
-"http://localhost:6000/screw_diver_capture" // for right cam
-"http://localhost:6000/gripper_diver_capture" // for left cam
+"http://localhost:6000/bev_driver_capture" //For BEV cam
+"http://localhost:6000/screw_driver_capture" // for right cam
+"http://localhost:6000/gripper_driver_capture" // for left cam
 
 frontend to backend:
 prompt:

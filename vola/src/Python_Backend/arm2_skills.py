@@ -10,6 +10,10 @@ from geometry_msgs.msg import PoseStamped
 import time
 import json
 import cv2
+import requests
+import base64
+url_update_screw_driver_capture = "http://localhost:6000/screw_driver_capture"
+
 
 class ARM2_Skills(Node):
 
@@ -44,6 +48,15 @@ class ARM2_Skills(Node):
 
     def image_callback(self, msg):
         self.image_frame = self.bridge.imgmsg_to_cv2(msg)
+
+        self.scalled_frame = cv2.resize(self.image_frame, (480, 320))
+        # Encode the frame into bytes (JPEG format)
+        _, self.img_encoded = cv2.imencode('.jpg', self.scalled_frame)
+
+        # Convert to bytes for sending
+        self.base64_image = base64.b64encode(self.img_encoded).decode('utf-8')  # <-- decode here
+        self.response = requests.post(url_update_screw_driver_capture, json={"image": self.base64_image})
+        print(f"Server response: {self.response.text}")
     
     def generate_frames(self,image_frame):
         print("xhxh")

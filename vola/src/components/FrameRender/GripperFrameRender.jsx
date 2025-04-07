@@ -6,7 +6,7 @@ function ScrewDriverFrameRender() {
   const [frameReceived, setframeReceived] = useState(null);
 
   useEffect(() => {
-    ipcRenderer.on("gripper_diver_capture", (event, File_image) => {
+    ipcRenderer.on("gripper_driver_capture", (event, File_image) => {
       try {
         setframeReceived(File_image.image);
       } catch (error) {
@@ -16,7 +16,7 @@ function ScrewDriverFrameRender() {
 
     // Optional cleanup to avoid duplicate listeners
     return () => {
-      ipcRenderer.removeAllListeners("screw_diver_capture");
+      ipcRenderer.removeAllListeners("gripper_capture");
     };
   }, []);
 

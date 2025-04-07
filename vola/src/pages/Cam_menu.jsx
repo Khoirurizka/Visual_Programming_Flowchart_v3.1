@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ScrewDriverFrameRender, BEV_FrameRender, GripperFrameRender } from '../components';
 
 const Cam_menu = () => {
-    const [message, setMessage] = useState("Hello World");
+    const [message, setMessage] = useState("");
 
     return (
         <div className=" w-full">
@@ -54,7 +54,7 @@ const Cam_menu = () => {
 
                     <div className="BEV_Cam Right_Hand_Cam flex flex-col items-center   space-y-6 top-[40px]" >
                         <div className="relative  bg-blue-900 h-[60px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
-                            <h2 className="text-lg font-semibold text-white">Right BEV Cam</h2>
+                            <h2 className="text-lg font-semibold text-white">Right Hand Cam</h2>
                         </div>
                         <div className="relative bg-slate-50 h-[320px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
                             <div className="flex items-center justify-center w-full h-full text-center">

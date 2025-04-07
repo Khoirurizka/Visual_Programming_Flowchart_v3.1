@@ -8,9 +8,9 @@ Use these APIs to **capture images from different cameras**:
 
 | Camera View        | Endpoint                                      |
 |--------------------|-----------------------------------------------|
-| BEV (Bird’s Eye View)  | `http://localhost:6000/bev_diver_capture`     |
-| Right Camera (Screw)   | `http://localhost:6000/screw_diver_capture`   |
-| Left Camera (Gripper)  | `http://localhost:6000/gripper_diver_capture` |
+| BEV (Bird’s Eye View)  | `http://localhost:6000/bev_driver_capture`     |
+| Right Camera (Screw)   | `http://localhost:6000/screw_driver_capture`   |
+| Left Camera (Gripper)  | `http://localhost:6000/gripper_driver_capture` |
 
 Each endpoint returns a captured image frame. These are typically base64-encoded JPEGs or raw image bytes, depending on your backend setup.
 

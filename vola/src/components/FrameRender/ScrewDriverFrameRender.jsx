@@ -8,7 +8,7 @@ function ScrewDriverFrameRender() {
   const { frameReceived_ScrewDriver, setframeReceived_ScrewDriver } = useStateContext();
 
   useEffect(() => {
-    ipcRenderer.on("screw_diver_capture", (event, File_image) => {
+    ipcRenderer.on("screw_driver_capture", (event, File_image) => {
       try {
         setframeReceived(File_image.image);
         setframeReceived_ScrewDriver(File_image.image);
@@ -19,7 +19,7 @@ function ScrewDriverFrameRender() {
 
     // Optional cleanup to avoid duplicate listeners
     return () => {
-      ipcRenderer.removeAllListeners("screw_diver_capture");
+      ipcRenderer.removeAllListeners("screw_driver_capture");
     };
   }, []);
 

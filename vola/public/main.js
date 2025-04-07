@@ -43,23 +43,23 @@ function setupExpressServer() {
   server.use(bodyParser.json());
 
   //temporary
-  server.post('/screw_diver_capture', (req, res) => {
+  server.post('/screw_driver_capture', (req, res) => {
     // console.log('Received data:', req.body);
-    mainWindow.webContents.send("screw_diver_capture", req.body);
+    mainWindow.webContents.send("screw_driver_capture", req.body);
 
-    res.json({ status: 'success', message: 'screw_diver_capture received successfully' });
+    res.json({ status: 'success', message: 'screw_driver_capture received successfully' });
   });
-  server.post('/gripper_diver_capture', (req, res) => {
+  server.post('/gripper_driver_capture', (req, res) => {
     // console.log('Received data:', req.body);
-    mainWindow.webContents.send("gripper_diver_capture", req.body);
+    mainWindow.webContents.send("gripper_driver_capture", req.body);
 
-    res.json({ status: 'success', message: 'screw_diver_capture received successfully' });
+    res.json({ status: 'success', message: 'screw_driver_capture received successfully' });
   });
-  server.post('/bev_diver_capture', (req, res) => {
+  server.post('/bev_driver_capture', (req, res) => {
     // console.log('Received data:', req.body);
-    mainWindow.webContents.send("bev_diver_capture", req.body);
+    mainWindow.webContents.send("bev_driver_capture", req.body);
 
-    res.json({ status: 'success', message: 'screw_diver_capture received successfully' });
+    res.json({ status: 'success', message: 'screw_driver_capture received successfully' });
   });
 
 
