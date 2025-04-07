@@ -1,0 +1,28 @@
+          <div
+            className="fixed right-4 bottom-4"
+            style={{ zIndex: '1000' }}
+          >
+            <TooltipComponent
+              content="Settings"
+              position="Top"
+            >
+              <button type='button' className='text-3xl p-3 hover:drop-shadow-xl hover:bg-light-gray text-white'
+                style={{ background: 'blue', borderRadius: '50%' }}
+              >
+                <FiSettings />
+              </button>
+            </TooltipComponent>
+          </div>
+
+
+                        <Routes>
+                {/*Dashboard*/}
+                <Route path="/" element="Home_menu" />
+                <Route path="/home_menu" element="Home_menu" />
+                {/*Dashboard*/}
+                <Route path="/kowlagebase_menu" element="Kowlagebase_menu" />
+                <Route path="/cam_menu" element="Cam_menu" />
+                <Route path="/interaction_menu" element="Interaction_menu" />
+
+              </Routes>
+                          value="p"
