@@ -1,11 +1,12 @@
-export {default as Button} from './Button';
-export {default as Stacked} from './Chart/Stacked';
-export {default as StaprkLine} from './Chart/SparkLine';
-export {default as LineChart} from './Chart/LineChart';
-export {default as Pie} from './Chart/Pie';
-export {default as Navbar} from './Navbar';
-export {default as Sidebar} from './Sidebar';
-export {default as BEV_FrameRender} from './FrameRender/BEV_FrameRender.jsx';
-export {default as GripperFrameRender} from './FrameRender/GripperFrameRender.jsx';
-export {default as ScrewDriverFrameRender} from './FrameRender/ScrewDriverFrameRender.jsx';
-export {default as VLM_FrameRender} from './FrameRender/VLM_FrameRender.jsx';
+export { default as Button } from './Button';
+export { default as Stacked } from './Chart/Stacked';
+export { default as StaprkLine } from './Chart/SparkLine';
+export { default as LineChart } from './Chart/LineChart';
+export { default as Pie } from './Chart/Pie';
+export { default as Navbar } from './Navbar';
+export { default as Sidebar } from './Sidebar';
+export { default as BEV_FrameRender } from './FrameRender/BEV_FrameRender.jsx';
+export { default as GripperFrameRender } from './FrameRender/GripperFrameRender.jsx';
+export { default as ScrewDriverFrameRender } from './FrameRender/ScrewDriverFrameRender.jsx';
+export { default as VLM_FrameRender } from './FrameRender/VLM_FrameRender.jsx';
+export { default as DiagramComponent } from './FlowchartRepresentation/DiagramComponent.jsx'
