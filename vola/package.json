@@ -28,8 +28,10 @@
     "feather-icons-react": "^0.8.1",
     "gojs": "^3.0.21",
     "gojs-react": "^1.1.2",
+    "microsoft-cognitiveservices-speech-sdk": "^1.43.1",
     "react": "^18.3.1",
     "react-audio-visualize": "^1.2.0",
+    "react-audio-visualizer-pro": "^0.4.1",
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18.3.1",
     "react-feather": "^2.0.10",
@@ -40,6 +42,7 @@
     "react-tooltip": "^5.28.0",
     "react-voice-visualizer": "^2.0.8",
     "wait-on": "^8.0.3",
+    "wavesurfer.js": "^7.9.4",
     "web-vitals": "^2.1.4"
   },
   "main": "public/main.js",

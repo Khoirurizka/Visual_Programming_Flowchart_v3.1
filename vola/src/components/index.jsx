@@ -10,3 +10,4 @@ export { default as GripperFrameRender } from './FrameRender/GripperFrameRender.
 export { default as ScrewDriverFrameRender } from './FrameRender/ScrewDriverFrameRender.jsx';
 export { default as VLM_FrameRender } from './FrameRender/VLM_FrameRender.jsx';
 export { default as DiagramComponent } from './FlowchartRepresentation/DiagramComponent.jsx'
+export { default as WaveSurferVisualizer } from './AudioWave/WaveSurferVisualizer.jsx'
