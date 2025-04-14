@@ -21,6 +21,8 @@ const { ipcRenderer } = window.require("electron");
 const Home_menu = () => {
   const [messageUser, setMessageUser] = useState("");
   const [messageUserVoice, setMessageUserVoice] = useState("");
+  const [detectedLanguage, setDetectedLanguage] = useState("");
+
   const [voiceMode, setvoiceMode] = useState(0);
   const [isListening, setIsListening] = useState(0);
   const [playPause_Listening, setPlayPause_Listening] = useState(1);
@@ -89,10 +91,15 @@ const Home_menu = () => {
 
       const audioConfig = speech_sdk.AudioConfig.fromWavFileInput(wavFile);
       const speechConfig = speech_sdk.SpeechConfig.fromSubscription("81032fb3c28f43d79b682e5f7f09d525", "eastasia");
-      speechConfig.speechRecognitionLanguage = "en-US";
-      const recognizer = new speech_sdk.SpeechRecognizer(speechConfig, audioConfig);
 
-      recognizer.recognizeOnceAsync(result => {
+      const autoDetectSourceLanguageConfig = speech_sdk.AutoDetectSourceLanguageConfig.fromLanguages(["en-US", "de-DE", "zh-TW", "id-ID"]);
+      const recognizer = speech_sdk.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
+
+      recognizer.recognizeOnceAsync((result) => {
+        const languageDetectionResult = speech_sdk.AutoDetectSourceLanguageResult.fromResult(result);
+        const language = languageDetectionResult.language;
+        console.log(language);
+        setDetectedLanguage(language);
         if (result.reason === speech_sdk.ResultReason.RecognizedSpeech) {
           setMessageUserVoice(result.text.replace(/\n/g, '').trim());
         } else {
