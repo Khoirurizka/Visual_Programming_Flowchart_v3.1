@@ -11,3 +11,4 @@ export { default as ScrewDriverFrameRender } from './FrameRender/ScrewDriverFram
 export { default as VLM_FrameRender } from './FrameRender/VLM_FrameRender.jsx';
 export { default as DiagramComponent } from './FlowchartRepresentation/DiagramComponent.jsx'
 export { default as WaveSurferVisualizer } from './AudioWave/WaveSurferVisualizer.jsx'
+export { default as ChatHistory } from './Chat/ChatHistory.jsx'

@@ -2,11 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Send, Mic, XCircle } from 'react-feather';
 import { TooltipComponent } from '@syncfusion/ej2-react-popups';
 import { sendPromptToLLMServer, speechInput, blobToWav } from '../utilities';
-import { DiagramComponent, WaveSurferVisualizer } from '../components';
+import { DiagramComponent, WaveSurferVisualizer, ChatHistory } from '../components';
 import { useStateContext } from '../contexts/ContextProvider';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { AudioVisualizer, LiveAudioVisualizer } from 'react-audio-visualize';
-import { WaveformVisualizer } from 'react-audio-visualizer-pro';
 import { AudioRecorder, useAudioRecorder } from 'react-audio-voice-recorder';
 import StopIcon from '@mui/icons-material/Stop';
 import PauseOutlinedIcon from '@mui/icons-material/PauseOutlined';
@@ -15,6 +13,9 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import * as speech_sdk from "microsoft-cognitiveservices-speech-sdk";
 import CancelIcon from '@mui/icons-material/Cancel';
+import { MessageBox } from 'react-chat-elements';
+import 'react-chat-elements/dist/main.css';
+import { Riple } from 'react-loading-indicators';
 
 const { ipcRenderer } = window.require("electron");
 
@@ -34,8 +35,69 @@ const Home_menu = () => {
   const [blobDuration, setBlobDuration] = useState(0);
   const [audioUrl, setAudioUrl] = useState(0);
   const [audCurrentTime, setAudCurrentTime] = useState(0);
+  const [isWaitingLLMReply, setIsWaitingLLMReply] = useState(false);
+
+  /// Chat History
+  const chatRef = useRef();
+
+  useEffect(() => {
+    ipcRenderer.on("response_from_LLM", (event, jsonData) => {
+      try {
+        console.log("Received data from main process msg:", jsonData);
+
+        console.log(jsonData.message)
+        handleWriteLLMResponse(jsonData.message);
 
 
+      } catch (error) {
+        console.error("Error parsing JSON data:", error);
+      }
+    });
+  }, []);
+
+
+  const handleDrawUserPrompt = (messageUser) => {
+    if (chatRef.current) {
+
+      chatRef.current.addMessage(messageUser, "user", false);
+    }
+  }
+
+  const handleCreateLoadingResponse = () => {
+    setIsWaitingLLMReply(true);
+  }
+
+  const handleWriteLLMResponse = (responseText) => {
+    if (chatRef.current) {
+      // Replace with real response after 5 seconds
+      setTimeout(() => {
+        //chatRef.current.removeMessage();
+        setIsWaitingLLMReply(false);
+        chatRef.current.addMessage(responseText, "assistant");
+
+      }, 5000);
+    }
+  };
+
+
+  const handleSendDummy = () => {
+    if (chatRef.current) {
+      chatRef.current.addMessage("What's your name?", "user");
+      setLastMsg_instantiate_id(lastMsg_instantiate_id + 1);
+      const loadingId = lastMsg_instantiate_id;
+      chatRef.current.addMessage("...", "assistant", true, 1);
+
+      // Replace with real response after 5 seconds
+      setTimeout(() => {
+        chatRef.current.removeMessage(1);
+        // Add actual assistant message
+        chatRef.current.addMessage("Hi, how can I help you?", "assistant");
+
+      }, 5000);
+    }
+  };
+
+  //Voice Input
   //Animation Play
   const visualizerRef = useRef(null);
 
@@ -123,8 +185,8 @@ const Home_menu = () => {
       setAudioPlayer(audio);
     }
   }, [recorder.recordingBlob]);
-  useEffect(() => {
 
+  useEffect(() => {
     if (blob instanceof Blob) {
       try {
         transcribeAudioBlob(blob);
@@ -154,11 +216,26 @@ const Home_menu = () => {
 
   return (
     <div className=" w-screen">
-      <div className="fixed top-72 right-10 bg-slate-50 h-[600px] w-96 p-4 shadow-lg rounded-3xl z-50">
-        <div className="relative -top-4 right-4 bg-blue-900 h-[60px] w-96 p-4 shadow-lg rounded-t-3xl z-51">
-          <h2 className="text-lg font-semibold text-white">Prompt History</h2>
+      <div className="fixed top-72 right-10 bg-slate-50 h-[600px] w-96  shadow-lg rounded-3xl z-50 ">
+        <div className="relative  bg-blue-900 h-[60px] w-96 p-4 shadow-lg rounded-t-3xl z-51">
+          <h2 className="text-lg font-semibold text-white">Log Prompts</h2>
         </div>
-        <p>Chat</p>
+        <div className="fixed w-[352px] h-[500px] m-4 overflow-y-auto">
+          <ChatHistory ref={chatRef} />
+          {isWaitingLLMReply && (
+            <div className="pt-[20px] my-4">
+              <Riple color={["#002871", "#003aa4", "#004cd7", "#0b61ff"]} />
+            </div>
+          )}
+        </div>
+        <div className="fixed bottom-10 right-10 ">
+          <button
+            onClick={handleSendDummy}
+            className="bg-green-600 text-white px-4 py-2 rounded-xl shadow-md"
+          >
+            📩 Send Demo Messages
+          </button>
+        </div>
       </div>
 
       <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-50 p-4 shadow-lg rounded-2xl z-50 w-[800px]" style={{ borderRadius: '30px' }}>
@@ -176,7 +253,14 @@ const Home_menu = () => {
             position="BottomRight"
             mouseTrail={true}
             opensOn="Hover"  >
-            <button onClick={() => { sendPromptToLLMServer(messageUser, frameReceived_ScrewDriver);; setMessageUser("") }} className="px-4 py-2 rounded-full bg-transparent hover:bg-gray-100">
+            <button onClick={() => {
+              sendPromptToLLMServer(messageUser, frameReceived_ScrewDriver);
+              handleDrawUserPrompt(messageUser);
+              setMessageUser("");
+              handleCreateLoadingResponse();
+            }}
+              disabled={messageUser.trim() === ""}
+              className="px-4 py-2 rounded-full bg-transparent hover:bg-gray-100">
               <Send size={30} className="drop-shadow-md" />
             </button>
           </TooltipComponent>
@@ -309,7 +393,15 @@ const Home_menu = () => {
               position="BottomRight"
               mouseTrail={true}
               opensOn="Hover"  >
-              <button onClick={() => { sendPromptToLLMServer(messageUserVoice, frameReceived_ScrewDriver); setMessageUserVoice("") }} className="px-4 py-2 rounded-full bg-transparent hover:bg-gray-100">
+              <button onClick={() => {
+                sendPromptToLLMServer(messageUserVoice, frameReceived_ScrewDriver);
+                handleDrawUserPrompt(messageUserVoice);
+
+                setMessageUserVoice("");
+                handleCreateLoadingResponse();
+              }}
+                disabled={messageUserVoice.trim() === ""}
+                className="px-4 py-2 rounded-full bg-transparent ">
                 <Send size={30} className="drop-shadow-md" />
               </button>
             </TooltipComponent>

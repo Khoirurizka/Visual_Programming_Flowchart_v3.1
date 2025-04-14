@@ -12,7 +12,7 @@ const Sidebar = () => {
             {activeMenu && (<> <div className="flex justify-between items-center" >
                 <div className="flex items-center justify-center h-14 w-full bg-gray-400 shadow-md">
                     <div className=' w-full flex items-center  justify-center '>
-                        <text className="font-semibold text-lg underline">Projects</text>
+                        <p className="font-semibold text-lg underline">Projects</p>
                     </div >
                 </div>
 

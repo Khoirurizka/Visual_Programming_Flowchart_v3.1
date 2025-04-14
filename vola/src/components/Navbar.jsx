@@ -13,7 +13,7 @@ const Navbar = () => {
     return (
 
         <div className="navbar">
-            <div class="h-fit">
+            <div className="h-fit">
                 <TooltipComponent
                     content="Show/Hide Menu"
                     position="BottomRight"

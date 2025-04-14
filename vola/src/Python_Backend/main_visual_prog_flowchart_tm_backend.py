@@ -21,8 +21,8 @@ from cv_bridge import CvBridge
 
 app = Flask(__name__)
 
-#url_LLM_server = "http://127.0.0.1:9000/AI_reciever_prompt_image" #Dummy LLM VLM API
-url_LLM_server = "https://gai.hucenrotia.ngrok.dev/AI_reciever_prompt_image" #Hucenrotia_LLM_server
+url_LLM_server = "http://127.0.0.1:9000/AI_reciever_prompt_image" #Dummy LLM VLM API
+#url_LLM_server = "https://gai.hucenrotia.ngrok.dev/AI_reciever_prompt_image" #Hucenrotia_LLM_server
 url_laptop_server = "https://e1d7-140-113-149-84.ngrok-free.app/arm1_command"
 
 
@@ -38,7 +38,16 @@ extacted_commands=[]
 
 
 latest_image_frame = None  
+"""dummy image for test"""
+# Create a dummy image (480x640 with 3 color channels, black background)
+dummy_image = np.zeros((480, 640, 3), dtype=np.uint8)
 
+# Add some text to the image
+cv2.putText(dummy_image, 'Dummy Frame', (180, 240), 
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
+# Assign it to the latest_image_frame
+latest_image_frame = dummy_image
 
 class ImageListener(Node):
     def __init__(self):
