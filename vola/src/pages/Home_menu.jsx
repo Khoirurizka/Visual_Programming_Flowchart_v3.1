@@ -69,33 +69,11 @@ const Home_menu = () => {
 
   const handleWriteLLMResponse = (responseText) => {
     if (chatRef.current) {
-      // Replace with real response after 5 seconds
-      setTimeout(() => {
-        //chatRef.current.removeMessage();
-        setIsWaitingLLMReply(false);
-        chatRef.current.addMessage(responseText, "assistant");
-
-      }, 5000);
+      setIsWaitingLLMReply(false);
+      chatRef.current.addMessage(responseText, "assistant");
     }
   };
 
-
-  const handleSendDummy = () => {
-    if (chatRef.current) {
-      chatRef.current.addMessage("What's your name?", "user");
-      setLastMsg_instantiate_id(lastMsg_instantiate_id + 1);
-      const loadingId = lastMsg_instantiate_id;
-      chatRef.current.addMessage("...", "assistant", true, 1);
-
-      // Replace with real response after 5 seconds
-      setTimeout(() => {
-        chatRef.current.removeMessage(1);
-        // Add actual assistant message
-        chatRef.current.addMessage("Hi, how can I help you?", "assistant");
-
-      }, 5000);
-    }
-  };
 
   //Voice Input
   //Animation Play
@@ -228,14 +206,7 @@ const Home_menu = () => {
             </div>
           )}
         </div>
-        <div className="fixed bottom-10 right-10 ">
-          <button
-            onClick={handleSendDummy}
-            className="bg-green-600 text-white px-4 py-2 rounded-xl shadow-md"
-          >
-            📩 Send Demo Messages
-          </button>
-        </div>
+
       </div>
 
       <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-slate-50 p-4 shadow-lg rounded-2xl z-50 w-[800px]" style={{ borderRadius: '30px' }}>
@@ -259,7 +230,7 @@ const Home_menu = () => {
               setMessageUser("");
               handleCreateLoadingResponse();
             }}
-              disabled={messageUser.trim() === ""}
+              disabled={messageUser.trim() === "" || isWaitingLLMReply}
               className="px-4 py-2 rounded-full bg-transparent hover:bg-gray-100">
               <Send size={30} className="drop-shadow-md" />
             </button>
@@ -400,7 +371,7 @@ const Home_menu = () => {
                 setMessageUserVoice("");
                 handleCreateLoadingResponse();
               }}
-                disabled={messageUserVoice.trim() === ""}
+                disabled={messageUserVoice.trim() === ""  || isWaitingLLMReply}
                 className="px-4 py-2 rounded-full bg-transparent ">
                 <Send size={30} className="drop-shadow-md" />
               </button>
