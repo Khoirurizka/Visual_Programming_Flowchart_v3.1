@@ -388,7 +388,7 @@ const Home_menu = () => {
           </div>
         </div>
       </div>
-      <div className="graph">
+      <div className="graph-flowchart">
         <DiagramComponent />
       </div>
     </div>

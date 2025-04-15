@@ -219,10 +219,9 @@ function DiagramComponent({ layerspacing = 30, columnSpacing = 30 }) {
   return (
     <div>
       <ReactDiagram
-        ref={diagramRef}
-
-        initDiagram={() => initDiagram(layerspacing, columnSpacing)}
         divClassName='graph-panel'
+        ref={diagramRef}
+        initDiagram={() => initDiagram(layerspacing, columnSpacing)}
         nodeDataArray={nodeDataArray}
         linkDataArray={linkDataArray}
 

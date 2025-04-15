@@ -3,7 +3,9 @@ import React, { useState } from "react";
 import { ScrewDriverFrameRender, BEV_FrameRender, GripperFrameRender } from '../components';
 
 const Cam_menu = () => {
-    const [message, setMessage] = useState("");
+    const [messageVLM_LC, setMessageVLM_LC] = useState("");
+    const [messageVLM_BEV, setMessageVLM_BEV] = useState("");
+    const [messageVLM_RC, setMessageVLM_RC] = useState("");
 
     return (
         <div className=" w-full">
@@ -24,7 +26,7 @@ const Cam_menu = () => {
                             <div className="flex items-center gap-2 h-full">
                                 <textarea
                                     placeholder="VLM Left Hand Cam"
-                                    value={message}
+                                    value={messageVLM_LC}
                                     readOnly
                                     className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
                                 />
@@ -45,6 +47,8 @@ const Cam_menu = () => {
                             <div className="flex items-center gap-2 h-full">
                                 <textarea
                                     placeholder="VLM BEV Cam"
+                                    value={messageVLM_BEV}
+                                    readOnly
                                     className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
                                 />
                             </div>
@@ -70,6 +74,8 @@ const Cam_menu = () => {
                             <div className="flex items-center gap-2 h-full">
                                 <textarea
                                     placeholder="VLM Right Hand Cam"
+                                    value={messageVLM_RC}
+                                    readOnly
                                     className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
                                 />
                             </div>

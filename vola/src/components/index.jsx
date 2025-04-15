@@ -3,6 +3,7 @@ export { default as Stacked } from './Chart/Stacked';
 export { default as StaprkLine } from './Chart/SparkLine';
 export { default as LineChart } from './Chart/LineChart';
 export { default as Pie } from './Chart/Pie';
+export { default as NodeGraph } from './Chart/NodeGraph.jsx'
 export { default as Navbar } from './Navbar';
 export { default as Sidebar } from './Sidebar';
 export { default as BEV_FrameRender } from './FrameRender/BEV_FrameRender.jsx';

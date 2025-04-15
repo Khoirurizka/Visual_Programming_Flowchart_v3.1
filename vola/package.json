@@ -36,6 +36,7 @@
     "react-chat-elements": "^12.0.18",
     "react-dom": "^18.2.0",
     "react-feather": "^2.0.10",
+    "react-graph-vis": "^1.0.7",
     "react-icons": "^4.3.1",
     "react-loading-indicators": "^1.0.0",
     "react-router-dom": "^6.2.1",

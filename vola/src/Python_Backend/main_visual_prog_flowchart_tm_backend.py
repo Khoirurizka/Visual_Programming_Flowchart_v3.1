@@ -34,7 +34,7 @@ actions_list=["pickup","lock", "insert", "putdown","find"]
 object_item_list=["red_wire","blue_wire", "yellow_wire", "white_wire","green_wire"]
 location_list=["table","power_supply_5"]
 
-extacted_commands=[]
+extracted_commands=[]
 
 
 latest_image_frame = None  
@@ -114,7 +114,7 @@ def extract_basic_keyPharse(text):
     # print(command_keypharse)
     return PDDL_line(command_keypharse)
 
-def convert_PDDL_line_to_jsonGraph(extacted_commands):
+def convert_PDDL_line_to_jsonGraph(extracted_commands):
     node = []
     link = []
     robot={'-':{'start':0,'end':0}} #to prevert null value
@@ -122,10 +122,10 @@ def convert_PDDL_line_to_jsonGraph(extacted_commands):
     has_robot=True
 
     ### Initialize robot start-end node
-    for i in range(len(extacted_commands)):
+    for i in range(len(extracted_commands)):
         has_robot=True
         for rb in robot:
-            if extacted_commands[i].robot == rb:
+            if extracted_commands[i].robot == rb:
                 has_robot=False
 
         if has_robot:
@@ -134,33 +134,33 @@ def convert_PDDL_line_to_jsonGraph(extacted_commands):
             # print(start_robot_node,end_robot_node)
             node_entry = {
             "key": start_robot_node,
-            "command": "Start_"+str(extacted_commands[i].robot),
+            "command": "Start_"+str(extracted_commands[i].robot),
             "color": "lightblue",
             "category": "StartEnd"
             }
             node.append(node_entry)
             node_entry = {
             "key": end_robot_node,
-            "command": "End_"+str(extacted_commands[i].robot),
+            "command": "End_"+str(extracted_commands[i].robot),
             "color": "lightblue",
             "category": "StartEnd"
             }
             node.append(node_entry)
-            robot.update({str(extacted_commands[i].robot):{'start':start_robot_node,'end':end_robot_node}})
-            last_key_id_on_each_robot.update({str(extacted_commands[i].robot):-1})
+            robot.update({str(extracted_commands[i].robot):{'start':start_robot_node,'end':end_robot_node}})
+            last_key_id_on_each_robot.update({str(extracted_commands[i].robot):-1})
     # print(robot)
     give_key_id=0
     prev_robot_active="-"
     # print(last_key_id_on_each_robot)
    
-    for i in range(len(extacted_commands)):
+    for i in range(len(extracted_commands)):
         # Draw node
         if (i==0):
             # print(list(robot.keys())[1])
             prev_robot_active=list(robot.keys())[1]
-        elif(i>0 and extacted_commands[i].robot!=prev_robot_active):
+        elif(i>0 and extracted_commands[i].robot!=prev_robot_active):
             ### add wait node for switch robot
-            # print(extacted_commands[i].robot)
+            # print(extracted_commands[i].robot)
             node_entry = {
             "key": give_key_id,
             "command": "wait another",
@@ -169,36 +169,36 @@ def convert_PDDL_line_to_jsonGraph(extacted_commands):
             }
             node.append(node_entry)
             # add link from start robot node to node
-            if last_key_id_on_each_robot[extacted_commands[i].robot]<0:
-                last_key_id_on_each_robot[extacted_commands[i].robot]=robot[extacted_commands[i].robot]["start"]
+            if last_key_id_on_each_robot[extracted_commands[i].robot]<0:
+                last_key_id_on_each_robot[extracted_commands[i].robot]=robot[extracted_commands[i].robot]["start"]
 
                 link_entry = {
                     "key": str(-give_key_id-1)+"s", 
-                    "from": last_key_id_on_each_robot[extacted_commands[i].robot], 
+                    "from": last_key_id_on_each_robot[extracted_commands[i].robot], 
                     "to": give_key_id
                 }
                 
-                last_key_id_on_each_robot[extacted_commands[i].robot]=give_key_id
+                last_key_id_on_each_robot[extracted_commands[i].robot]=give_key_id
                 link.append(link_entry)
 
             # add link from previous process node to node
             link_entry = {
                     "key": -give_key_id-1, 
-                    "from": last_key_id_on_each_robot[extacted_commands[i-1].robot], 
+                    "from": last_key_id_on_each_robot[extracted_commands[i-1].robot], 
                     "to": give_key_id
                 }
                 
-            last_key_id_on_each_robot[extacted_commands[i].robot]=give_key_id
+            last_key_id_on_each_robot[extracted_commands[i].robot]=give_key_id
             link.append(link_entry)
             give_key_id=give_key_id+1
 
-            prev_robot_active=extacted_commands[i].robot
+            prev_robot_active=extracted_commands[i].robot
             # print(prev_robot_active)
 
         ### add main node
         node_entry = {
             "key": give_key_id,
-            "command": extacted_commands[i].action,
+            "command": extracted_commands[i].action,
             "color": "white",
             "category": "Process"
         }
@@ -213,16 +213,16 @@ def convert_PDDL_line_to_jsonGraph(extacted_commands):
                 "from": robot[list(robot.keys())[1]]["start"], 
                 "to": give_key_id
             }
-            last_key_id_on_each_robot[extacted_commands[1].robot]=give_key_id
+            last_key_id_on_each_robot[extracted_commands[1].robot]=give_key_id
             link.append(link_entry)
         # draw link on each step
         else:
             link_entry = {
                 "key": -give_key_id-1, 
-                "from": last_key_id_on_each_robot[extacted_commands[i].robot], 
+                "from": last_key_id_on_each_robot[extracted_commands[i].robot], 
                 "to": give_key_id
             }
-            last_key_id_on_each_robot[extacted_commands[i].robot]=give_key_id
+            last_key_id_on_each_robot[extracted_commands[i].robot]=give_key_id
             link.append(link_entry)
 
         give_key_id=give_key_id+1
@@ -314,7 +314,7 @@ def controller_arm2(subtasks, coords):
 
 
 def process_data_from_AI(data_json):
-    extacted_commands=[]
+    extracted_commands=[]
     node = []
     link=[]
     output_pddl_str=""
@@ -415,7 +415,7 @@ def process_data_from_AI(data_json):
         pddl_lines=extract_pddl_lines(output_pddl_str)
         for pddl_line in pddl_lines:
             extacted_command=extract_basic_keyPharse(pddl_line)
-            extacted_commands.append(extacted_command)
+            extracted_commands.append(extacted_command)
         
         if data['vlm_frame'] is not None:
             img_bytes = base64.b64decode(data['vlm_frame'])
@@ -438,8 +438,8 @@ def process_data_from_AI(data_json):
             print("Warning: image_frame is None!")
             data['vlm_frame'] = ""
 
-        # print("Extracted commands:", extacted_commands)
-        node,link=convert_PDDL_line_to_jsonGraph(extacted_commands)
+        # print("Extracted commands:", extracted_commands)
+        node,link=convert_PDDL_line_to_jsonGraph(extracted_commands)
         post_data = {'message': data['message'],
                      'vlm_frame':data['vlm_frame'],
                      'linkDataArray': link,
