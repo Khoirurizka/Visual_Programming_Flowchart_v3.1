@@ -1,6 +1,6 @@
 import { ButtonProps } from "@syncfusion/ej2-react-popups";
 import React from "react";
-
+import {PLYViewer} from "../components"
 const Interaction_menu = () => {
     return (
         <div className=" w-screen">
@@ -18,7 +18,7 @@ const Interaction_menu = () => {
                 <p>Plan list</p>
             </div>
             <div style={{ width: '100vw' }}>
-                Interaction_menu
+                <PLYViewer/>
             </div>
         </div>
  

@@ -85,19 +85,19 @@ const NodeGraph = () => {
             hierarchical: false
         },
         edges: {
+            color: "#000814",       // default color
             color: {
-                color: "#000814",       // default color
-                highlight: "#06a77d",   
-                hover:"#f0c808"
+                highlight: "#d1495b",
+                hover: "#f0c808"
             },
             width: 1,
             selectionWidth: 1
         },
         nodes: {
+            color: "#bbdefb",       // default color
             color: {
-                color: "#bbdefb",       // default color
-                highlight: {background:"#90caf9",border:"#133c55"},   
-                hover: {background:"#bbdefb",border:"#133c55"},
+                highlight: { background: "#90caf9", border: "#133c55" },
+                hover: { background: "#bbdefb", border: "#133c55" },
             },
             borderWidth: 1,
             borderWidthSelected: 2,
