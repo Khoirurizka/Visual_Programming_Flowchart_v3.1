@@ -1,6 +1,6 @@
 # Visual_Programming_Flowchart_v3.1
 
-Base station for controling multiple robot. It's utilize the visual programming and ROS or ROS2. Make it, so usefull even for unskilled people. for using this aplication, the it should connected to pddl and solver, while it will give result as graph that related to ROS function.
+Software for controling multiple robot. It's utilize the visual programming and ROS2. Make it, so usefull even for unskilled people. for using this aplication, the it is connected to pddl and LLM, while it will give result as graph that related to ROS2 function.
 
 ## Cam API Endpoints (Backend → Frontend)
 
