@@ -1,6 +1,5 @@
 # Visual_Programming_Flowchart_v3.1
-
-Software for controling multiple robot. It's utilize the visual programming and ROS2. Make it, so usefull even for unskilled people. for using this aplication, the it is connected to pddl and LLM, while it will give result as graph that related to ROS2 function.
+A software system for controlling a dual-arm robot. It features learning capabilities from both text and voice inputs to generate a visual programming graph, which is integrated with ROS2 and capable of learning new skills. The system is designed to be highly accessible, even for unskilled users. The core of its learning capability lies in its integration with a PDDL or GNN solver and a Large Language Model (LLM). These components work together to produce a graph representing action skills. These action skills are linked to ROS2 functions that generate real robot motion. Moreover, the system can acquire skills from previous actions and also generate new ones using a diffusion model.
 
 ## Cam API Endpoints (Backend → Frontend)
 
