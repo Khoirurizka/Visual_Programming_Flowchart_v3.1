@@ -1,0 +1,113 @@
+import { ButtonProps } from "@syncfusion/ej2-react-popups";
+import React, { useState } from "react";
+import { LeftRobotFrameRender, BEV_FrameRender, T3rd_Person_FrameRender, RightRobotFrameRender } from '../components';
+
+const Cam_menu = () => {
+    const [messageVLM_LC, setMessageVLM_LC] = useState("");
+    const [messageVLM_BEV, setMessageVLM_BEV] = useState("");
+    const [messageVLM_3PV, setmessageVLM_3PV] = useState("");
+    const [messageVLM_RC, setMessageVLM_RC] = useState("");
+
+    return (
+        <div className=" w-full">
+            <div style={{ width: '100%' }}>
+                <div className="flex  justify-center gap-x-5 mt-10 ml-10">
+
+                    <div className=" Left_Hand_Cam flex flex-col items-center  static space-y-6 top-[40px]" >
+                        <div className="relative  bg-blue-900 h-[60px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <h2 className="text-lg font-semibold text-white">Left Hand Cam</h2>
+                        </div>
+                        <div className="relative   bg-slate-50 h-[320px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center justify gap-2 w-full h-full text-center">
+                                <div className="LeftRobotFrameRender"><LeftRobotFrameRender /></div>
+
+                            </div>
+                        </div>
+                        <div className="relative  bg-slate-50 h-[250px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center gap-2 h-full">
+                                <textarea
+                                    placeholder="VLM Left Hand Cam"
+                                    value={messageVLM_LC}
+                                    readOnly
+                                    className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="BEV_Cam static flex flex-col items-center   space-y-6 top-[40px]" >
+                        <div className="relative  bg-blue-900 h-[60px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <h2 className="text-lg font-semibold text-white">BEV Cam</h2>
+                        </div>
+                        <div className="relative   bg-slate-50 h-[320px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center justify gap-2 w-full h-full text-center">
+                                <div className="BEVFrameRender"><BEV_FrameRender /></div>
+                            </div>
+                        </div>
+                        <div className="relative  bg-slate-50 h-[250px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center gap-2 h-full">
+                                <textarea
+                                    placeholder="VLM BEV Cam"
+                                    value={messageVLM_BEV}
+                                    readOnly
+                                    className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="3rd_Person_Cam static flex flex-col items-center   space-y-6 top-[40px]" >
+                        <div className="relative  bg-blue-900 h-[60px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <h2 className="text-lg font-semibold text-white">3rd Person Cam</h2>
+                        </div>
+                        <div className="relative   bg-slate-50 h-[320px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center justify gap-2 w-full h-full text-center">
+                                <div className="T3RDFrameRender"><T3rd_Person_FrameRender /></div>
+                            </div>
+                        </div>
+                        <div className="relative  bg-slate-50 h-[250px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center gap-2 h-full">
+                                <textarea
+                                    placeholder="VLM 3rd Person Cam"
+                                    value={messageVLM_3PV}
+                                    readOnly
+                                    className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="BEV_Cam Right_Hand_Cam flex flex-col items-center   space-y-6 top-[40px]" >
+                        <div className="relative  bg-blue-900 h-[60px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <h2 className="text-lg font-semibold text-white">Right Hand Cam</h2>
+                        </div>
+                        <div className="relative bg-slate-50 h-[320px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center justify-center w-full h-full text-center">
+                                <div className="RightRobotFrameRender max-h-full max-w-full p-[5px] box-border">
+                                    <div className="h-full w-full">
+                                        <RightRobotFrameRender />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="relative  bg-slate-50 h-[250px] w-[440px] m-0 p-4 shadow-lg rounded-3xl z-51">
+                            <div className="flex items-center gap-2 h-full">
+                                <textarea
+                                    placeholder="VLM Right Hand Cam"
+                                    value={messageVLM_RC}
+                                    readOnly
+                                    className="flex-1 h-full rounded px-3 py-2 bg-transparent focus:outline-none resize-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    );
+}
+export default Cam_menu

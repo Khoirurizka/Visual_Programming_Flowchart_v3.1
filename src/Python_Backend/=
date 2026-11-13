@@ -1,0 +1,2 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: Werkzeug in /home/ai/.local/lib/python3.10/site-packages (3.1.5)

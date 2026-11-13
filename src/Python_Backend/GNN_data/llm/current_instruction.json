@@ -1,0 +1,1 @@
+{"prompt": "INstall a white wire to terminal 2", "llm_decomposed": "install-white_wire-terminal_2", "to_gnn": {"goal": "install", "target_wire": "white_wire", "target_terminal": "terminal_2"}}

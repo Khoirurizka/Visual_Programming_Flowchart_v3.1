@@ -1,0 +1,10 @@
+/node_modules
+# Large files (over 95 MiB)
+/node_modules/.cache/default-development/5.pack
+/node_modules/.cache/default-development/1.pack
+/node_modules/electron/dist/electron
+/src/Python_Backend/checkpoint_best_total.pth
+/src/Python_Backend/dataset.zip
+/src/Python_Backend/llm_gnn_compal_demo.tar.xz
+/src/Python_Backend/outputs_TAIDE_v7/checkpoint-300/optimizer.pt
+/src/Python_Backend/outputs_TAIDE_v7/checkpoint-300/adapter_model.safetensors

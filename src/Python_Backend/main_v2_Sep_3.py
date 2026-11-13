@@ -1,0 +1,244 @@
+import re
+from flask import Flask, request, jsonify
+import requests
+import threading
+import time
+import json
+import time
+import rclpy
+from rclpy.node import Node
+import numpy as np
+import cv2
+import base64
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from rclpy.executors import MultiThreadedExecutor
+from planner_extractor import command_line, planner_extractor
+from arm2_excecutor import Arm2Controller
+app = Flask(__name__)
+
+url_AI_server= "https://gai.hucenrotia.ngrok.dev/"
+url_LLM_and_GNN = url_AI_server+"LLM_GNN" #Hucenrotia_LLM_and planner_api
+url_GNN = url_AI_server+"GNN_only" #Hucenrotia_planner_api
+url_laptop_server = "https://6c03-140-113-149-84.ngrok-free.app/arm1_command"
+url_laptop_server_status = "https://6c03-140-113-149-84.ngrok-free.app/arm1_status"
+url_laptop_server_back = "https://6c03-140-113-149-84.ngrok-free.app/arm1_command_back"
+url_update_graph = "http://localhost:6000/update_graph"
+
+global node, link
+node, link = [], []
+global robots, last_action_node_id_on_each_robot, prev_robot_active, link_id
+robots, last_action_node_id_on_each_robot, prev_robot_active, link_id= None, None, "-", 0
+global motion_end, GNN_terminated
+motion_end, GNN_terminated= True, True
+global robot_execeute, command_execeute
+robot_execeute, command_execeute= "",""
+# latest_image_frame = None  
+
+# Function for sending the data to the AI server (LLM+Planner)
+def send_data_to_url(url,data):
+    try:
+        response = requests.post(url, json=data)
+        print(f"Data sent: {response.status_code}, Response: {response.text}")
+        return response.text
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending data: {e}")
+        return (f"Error sending data: {e}")
+
+# Function for sending the data to the HMI
+def send_data_to_electron(
+    url,
+    data,
+    *,
+    timeout=5.0,
+    retries=3,
+    backoff=1.5
+):
+    """
+    POST 'data' to Electron/HMI.
+
+    Accepts:
+      - dict/list -> sent via requests.post(json=...)
+      - Flask Response (e.g., from jsonify) -> bytes body sent with Content-Type: application/json
+      - str/bytes -> sent as raw body (sets JSON content-type if it looks like JSON)
+
+    Retries with exponential backoff on network errors or 5xx.
+    Returns (status_code, text) on success; raises on final failure.
+    """
+    def _do_post(payload, headers=None, as_json=False):
+        if as_json:
+            return requests.post(url, json=payload, timeout=timeout)
+        else:
+            return requests.post(url, data=payload, headers=headers or {}, timeout=timeout)
+
+    # Prepare payload & headers depending on type
+    headers = None
+    as_json = False
+    payload = None
+
+    # Flask Response (jsonify(...) result)
+    if hasattr(data, "get_data") and callable(getattr(data, "get_data", None)):
+        # Treat as Flask Response
+        payload = data.get_data()  # bytes
+        headers = {"Content-Type": "application/json"}
+        as_json = False
+
+    # JSON-serializable dict/list
+    elif isinstance(data, (dict, list)):
+        payload = data
+        as_json = True
+
+    # Raw str/bytes
+    elif isinstance(data, (str, bytes)):
+        if isinstance(data, str):
+            payload = data.encode("utf-8")
+        else:
+            payload = data
+        # Try to detect if it's JSON to set header
+        try:
+            json.loads(payload.decode("utf-8"))
+            headers = {"Content-Type": "application/json"}
+        except Exception:
+            headers = {"Content-Type": "text/plain"}
+        as_json = False
+
+    else:
+        # Last resort: try to JSON-serialize arbitrary objects
+        try:
+            payload = json.loads(json.dumps(data, default=str))
+            as_json = True
+        except Exception as e:
+            raise TypeError(f"send_data_to_electron: unsupported data type {type(data)}") from e
+
+    # Retry loop
+    delay = 0.5
+    last_exc = None
+    for attempt in range(1, retries + 1):
+        try:
+            resp = _do_post(payload, headers=headers, as_json=as_json)
+            # Retry on server errors
+            if 200 <= resp.status_code < 500:
+                # success or client error (don’t retry client errors)
+                print(f"[electron] POST {url} -> {resp.status_code}")
+                return resp.status_code, resp.text
+            else:
+                print(f"[electron] attempt {attempt}: server {resp.status_code}, will retry...")
+                last_exc = RuntimeError(f"Server returned {resp.status_code}: {resp.text[:200]}")
+        except requests.exceptions.RequestException as e:
+            print(f"[electron] attempt {attempt}: network error {e}, will retry...")
+            last_exc = e
+
+        if attempt < retries:
+            time.sleep(delay)
+            delay *= backoff
+
+    # Exhausted retries
+    raise last_exc if last_exc else RuntimeError("Unknown error posting to Electron")
+
+@app.route('/robot_task_status', methods=['GET'])
+def robot_task_status_handler():
+    """
+    Returns the current status of all robots.
+    """
+    return jsonify(robot_task_status)
+
+@app.route('/user_prompt_to_LLM_GNN', methods=['POST'])
+def user_prompt_to_LLM_GNN_handler():
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Invalid data format'}), 400
+        
+        message = data['message']
+        print(f"Received message: {message}")
+        
+        response = send_data_to_url(url_LLM_and_GNN,data)
+        # response =  send_data_to_url(url_GNN,data)
+        response_json= json.loads(response)
+        print(f"data_recieved[LLM]: {response_json['data']}")
+        
+        robot="arm1"
+        # if response_json['data']['target_action']=="lock":
+        #     robot="arm2"
+
+        # gnn_str_output= str(response_json['data']['target_action'])+" "+str(robot)+" "+str(response_json['data']['target_wire'])+" "+str(response_json['data']['target_terminal'])
+
+        # global node, link, robots, last_action_node_id_on_each_robot, prev_robot_active, link_id
+        # node, link, robots, last_action_node_id_on_each_robot,prev_robot_active,link_id  = planner_extractor.AI_plan_to_graph_plan(node, link, gnn_str_output,robots, last_action_node_id_on_each_robot, prev_robot_active, link_id)
+
+        data_for_frontend = {'LLM_response': response_json['data']['LLM_response'],
+            # 'vlm_frame':data['vlm_frame'],
+            'linkDataArray': link,
+            'nodeDataArray': node
+            }
+        print(f"results_from_AI: {data_for_frontend}")
+
+        # global GNN_terminated
+        # GNN_terminated=response_json['data']['terminate']
+        # motion_end=False
+        return jsonify({'results_from_AI':data_for_frontend,'status': 'success'}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'An error occurred LLM'}), 500
+
+def listen_from_server():
+    global robot_execeute, command_execeute
+    with app.app_context():
+        while True:
+            global motion_end, GNN_terminated
+            if motion_end== True and GNN_terminated==False:
+                data = {}
+                print('data sent[GNN]:\n', data)
+                response =  send_data_to_url(url_GNN,data)
+                motion_end = False
+
+                response_json= json.loads(response)
+                print(f"data_recieved[GNN]: {response_json['data']}")
+                
+                robot="arm1"
+                if response_json['data']['target_action']=="lock":
+                    robot="arm2"
+                robot_execeute=robot
+                command_execeute=response_json['data']['target_action']
+
+                gnn_str_output= str(response_json['data']['target_action'])+" "+str(robot)+" "+str(response_json['data']['target_wire'])+" "+str(response_json['data']['target_terminal'])
+
+                global node, link, robots, last_action_node_id_on_each_robot, prev_robot_active, link_id
+                node, link, robots, last_action_node_id_on_each_robot,prev_robot_active,link_id  = planner_extractor.AI_plan_to_graph_plan(node, link, gnn_str_output,robots, last_action_node_id_on_each_robot, prev_robot_active, link_id)
+
+                data_for_frontend = {
+                    'linkDataArray': link,
+                    'nodeDataArray': node
+                    }
+                GNN_terminated=response_json['data']['terminate'] 
+
+                post_data=jsonify({'results_from_AI':data_for_frontend,'status': 'success'})
+                send_data_to_electron(url_update_graph, post_data)
+
+def execute():
+    global robot_execeute, command_execeute,motion_end
+
+    while True:
+        if robot_execeute == "arm2":
+            if command_execeute == "lock":
+                Arm2Controller.screwing(1)
+                motion_end=True
+        elif robot_execeute == "arm1":
+                Arm2Controller.screwing(1)
+                motion_end=True
+
+if __name__ == "__main__":
+    rclpy.init()
+    # image_listener = ImageListener()
+    # executor = MultiThreadedExecutor()
+    # executor.add_node(image_listener)
+
+    # def spin_executor():
+    #     executor.spin()
+
+    # threading.Thread(target=spin_executor, daemon=True).start()
+    threading.Thread(target=execute, daemon=True).start()
+    threading.Thread(target=listen_from_server, daemon=True).start()
+
+    app.run(host='127.0.0.2', port=8000, debug=True)
